@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Timer with Clock Arrow</title>
+  <style>
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      flex-direction: column;
+      background-color: #1E2A48;
+      color: white;
+      font-family: Arial, sans-serif;
+      transition: background-color 0.5s ease; /* Smooth transition for background color */
+    }
+
+    #timer {
+      font-size: 48px;
+      margin-top: 20px;
+      border: 4px solid white;
+      padding: 10px;
+      border-radius: 10px;
+    }
+
+    /* Clock styles */
+    .clock {
+      position: relative;
+      width: 200px;
+      height: 200px;
+      border: 6px solid white;
+      border-radius: 50%;
+      margin-top: 20px;
+    }
+
+    .clock-face {
+      width: 100%;
+      height: 100%;
+      position: relative;
+    }
+
+    .clock-hand {
+      width: 50%;
+      height: 6px;
+      background-color: white;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform-origin: 0% 50%;
+      transform: rotate(0deg);
+      transition: transform 1s ease;
+    }
+  </style>
+</head>
+<body>
+  <div class="clock">
+    <div class="clock-face">
+      <div id="clockHand" class="clock-hand"></div>
+    </div>
+  </div>
+
+  <div id="timer">
+    <span id="seconds">60</span>:<span id="milliseconds">00</span>
+  </div>
+
+  <button id="startButton">Start</button>
+  <button id="pauseButton">Pause</button>
+
+  <audio id="beepSound" src="/beep-sound-8333.mp3"></audio>
+  <audio id="endSound" src="/end-sound.mp3"></audio> <!-- Add the new sound for the end -->
+
+  <script>
+    let seconds = 60;
+    let countdownInterval;
+    let isPaused = false;
+
+    const secondsDisplay = document.getElementById("seconds");
+    const millisecondsDisplay = document.getElementById("milliseconds");
+    const clockHand = document.getElementById("clockHand");
+    const beepSound = document.getElementById("beepSound");
+    const endSound = document.getElementById("endSound"); // Reference to the end sound
+
+    // Update the timer display
+    function updateDisplay() {
+      secondsDisplay.textContent = seconds.toString().padStart(2, '0');
+      millisecondsDisplay.textContent = '00';
+    }
+
+    // Update the clock hand rotation
+    function updateClockHand() {
+      const totalSeconds = 60; // Assuming 60 seconds total
+      const degreesPerSecond = 360 / totalSeconds;
+      const rotation = (60 - seconds) * degreesPerSecond;
+      clockHand.style.transform = `rotate(${rotation}deg)`;
+    }
+
+    // Start the countdown
+    function startCountdown() {
+      if (!countdownInterval) {
+        countdownInterval = setInterval(function () {
+          if (!isPaused) {
+            if (seconds > 0) {
+              seconds--;
+              updateDisplay();
+              updateClockHand();
+
+              // Play beep sound every 5 seconds
+              if (seconds % 5 === 0) {
+                beepSound.play();
+              }
+
+              // Change border color when time reaches 0
+              if (seconds === 0) {
+                document.getElementById("timer").style.border = "4px solid red";
+                document.body.style.backgroundColor = "red"; // Change background color
+                endSound.play(); // Play the new end sound
+                clearInterval(countdownInterval); // Stop the countdown
+              }
+            }
+          }
+        }, 1000); // 1-second intervals
+      }
+    }
+
+    // Pause the countdown
+    function pauseCountdown() {
+      isPaused = !isPaused;
+    }
+
+    // Event listeners for buttons
+    document.getElementById("startButton").addEventListener("click", startCountdown);
+    document.getElementById("pauseButton").addEventListener("click", pauseCountdown);
+  </script>
+</body>
+</html>
